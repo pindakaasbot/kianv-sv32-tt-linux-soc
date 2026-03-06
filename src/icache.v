@@ -21,7 +21,7 @@
 `default_nettype none
 
 module icache #(
-    parameter integer NUM_SETS   = 512,
+    parameter integer NUM_SETS   = 256,
     parameter integer LINE_BYTES = 4,
     parameter integer ADDR_WIDTH = 32,
 
@@ -29,7 +29,7 @@ module icache #(
     parameter integer HASH_MODE   = 2,
     parameter integer HASH_XOR_LO = 0,
     parameter integer HASH_XOR_HI = 1,
-    parameter integer ASIC        = 0
+    parameter         ASIC        = 0
 ) (
     input wire clk,
     input wire resetn,
@@ -88,8 +88,7 @@ module icache #(
                          idx_raw;
 
   initial begin
-    if ((NUM_SETS % 512) != 0)
-      $fatal(1, "icache: NUM_SETS (%0d) should be a multiple of 512 for SRAM tiling.", NUM_SETS);
+    if (NUM_SETS != 256) $fatal(1, "icache: NUM_SETS (%0d) must equal 256.", NUM_SETS);
     if ((LINE_BYTES * 8) != 32)
       $fatal(1, "icache: LINE_BYTES*8 (%0d) must equal DATA_WIDTH=32.", LINE_BYTES * 8);
     if (HASH_ON && HASH_MODE == 1) begin

@@ -19,7 +19,6 @@
  */
 
 `default_nettype none
-`timescale 1 ns / 100 ps
 `include "defines_soc.vh"
 
 module soc #(
@@ -63,9 +62,7 @@ module soc #(
   localparam integer RSTW = $clog2(RST_CYCLES);
   reg  [RSTW-1:0] rst_cnt;
 
-/* verilator lint_off WIDTHEXPAND */
   wire            rst_done = (rst_cnt == RST_CYCLES - 1);
-/* verilator lint_on WIDTHEXPAND */
 
   reg             is_reboot_valid_r;
 
@@ -74,9 +71,7 @@ module soc #(
     else if (!rst_done) rst_cnt <= rst_cnt + 1'b1;
   end
 
-/* verilator lint_off WIDTHEXPAND */
   wire        resetn_soc = ext_resetn & (rst_cnt == RST_CYCLES - 1);
-/* verilator lint_on WIDTHEXPAND */
 
   wire        cpu_mem_ready;
   wire        cpu_mem_valid;
@@ -262,6 +257,7 @@ module soc #(
   );
 
   cache #(
+      .ASIC         (`ASIC),
       .BYPASS_CACHES(`BYPASS_CACHES)
   ) cache_I (
       .clk           (clk),
@@ -1218,8 +1214,11 @@ module spi_nor_spi_if #(
   genvar i;
   generate
     for (i = 0; i < 4; i = i + 1) begin : GEN_CEN
-      if (i == NOR_CS_IDX) assign cen[i] = nor_sel ? nor_cs_n : spi_cen_int[i];
-      else assign cen[i] = spi_cen_int[i];
+      if (i == NOR_CS_IDX) begin : GEN_NOR_CS
+        assign cen[i] = nor_sel ? nor_cs_n : spi_cen_int[i];
+      end else begin : GEN_SPI_CS
+        assign cen[i] = spi_cen_int[i];
+      end
     end
   endgenerate
 
@@ -1227,4 +1226,5 @@ module spi_nor_spi_if #(
   assign bus_rdata_o = nor_done ? nor_rdata : (mode_r && spi_ready_int) ? spi_rdata : 32'h0;
 
 endmodule
+
 `default_nettype wire

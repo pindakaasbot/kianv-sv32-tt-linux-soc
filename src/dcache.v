@@ -22,7 +22,7 @@
 
 module dcache #(
 
-    parameter integer NUM_LINES  = 512,
+    parameter integer NUM_LINES  = 256,
     parameter integer LINE_BYTES = 4,
     parameter integer ADDR_WIDTH = 32,
     parameter integer DATA_WIDTH = 32,
@@ -33,7 +33,7 @@ module dcache #(
     parameter integer HASH_MODE   = 2,
     parameter integer HASH_XOR_LO = 0,
     parameter integer HASH_XOR_HI = 1,
-    parameter integer ASIC        = 0
+    parameter         ASIC        = 0
 ) (
     input wire clk,
     input wire resetn,
@@ -97,8 +97,7 @@ module dcache #(
                          idx_raw;
 
   initial begin
-    if ((NUM_LINES % 512) != 0)
-      $fatal(1, "dcache: NUM_LINES (%0d) must be a multiple of 512.", NUM_LINES);
+    if (NUM_LINES != 256) $fatal(1, "dcache: NUM_LINES (%0d) must equal 256.", NUM_LINES);
     if ((LINE_BYTES * 8) != DATA_WIDTH)
       $fatal(
           1, "dcache: LINE_BYTES*8 (%0d) must equal DATA_WIDTH (%0d).", LINE_BYTES * 8, DATA_WIDTH
