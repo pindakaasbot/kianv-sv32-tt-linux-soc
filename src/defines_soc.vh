@@ -20,7 +20,9 @@
 
 `ifndef KIANV_SOC
 `define KIANV_SOC
+`ifndef SYSTEM_CLK
 `define SYSTEM_CLK 30_000_000
+`endif
 
 `ifndef ASIC
 `define ASIC 1'b1

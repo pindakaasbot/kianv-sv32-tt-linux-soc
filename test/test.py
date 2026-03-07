@@ -1,40 +1,82 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
+# SPDX-FileCopyrightText: © 2026 Tiny Tapeout
 # SPDX-License-Identifier: Apache-2.0
 
 import cocotb
 from cocotb.clock import Clock
+from cocotb.types import LogicArray
 from cocotb.triggers import ClockCycles
+from cocotbext.uart import UartSource, UartSink
+from cocotb.triggers import RisingEdge, FallingEdge
+
+
+async def spi_slave(dut, clock, cs, mosi, miso):
+    """A simple SPI slave that captures 32 MOSI bits and echoes MOSI back on MISO."""
+    miso.value = 0
+    out_buff = LogicArray("0" * 32)
+
+    await FallingEdge(cs)
+
+    for bit_index in range(32):
+        await RisingEdge(clock)
+        mosi_val = mosi.value
+        out_buff[31 - bit_index] = mosi_val
+
+        await FallingEdge(clock)
+        miso.value = mosi_val
+
+    received = out_buff.to_unsigned()
+    assert received == 0xDEADBEAF, f"Expected 0xDEADBEAF, got {received:#010X}"
+    dut._log.info(f"SPI slave received expected value: 0x{received:08X}")
 
 
 @cocotb.test()
-async def test_project(dut):
-    dut._log.info("Start")
-
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, unit="us")
+async def test_uart(dut):
+    dut._log.info("start")
+    dut.test_sel.value = 0
+    clock = Clock(dut.clk, 100, unit="ns")
     cocotb.start_soon(clock.start())
+    cocotb.start_soon(
+        spi_slave(
+            dut,
+            dut.spi_sclk0,
+            dut.spi_cen0,
+            dut.spi_sio0_si_mosi0,
+            dut.spi_sio1_so_miso0,
+        )
+    )
 
-    # Reset
-    dut._log.info("Reset")
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
+    uart_source = UartSource(dut.uart_rx, baud=115200, bits=8)
+    uart_sink = UartSink(dut.uart_tx, baud=115200, bits=8)
+
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 10)
     dut.rst_n.value = 1
 
-    dut._log.info("Test project behavior")
+    # Wait for firmware to boot, run SPI test, and print "Hello UART\n"
+    for i in range(5):
+        await ClockCycles(dut.clk, 100000)
+        if uart_sink.count() >= 11:
+            break
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    expected_str = b"Hello UART\n"
+    available = uart_sink.count()
+    dut._log.info(f"UART bytes available: {available}")
+    data = uart_sink.read_nowait(min(available, len(expected_str)))
+    dut._log.info(f"UART Data: {data}")
+    assert data == expected_str, f"Expected {expected_str!r}, got {data!r} ({available} bytes avail)"
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+    # The firmware converts uppercase to lowercase and echoes
+    await uart_source.write(b"K")
+    await ClockCycles(dut.clk, 2500)
+    await uart_source.write(b"I")
+    await ClockCycles(dut.clk, 2500)
+    await uart_source.write(b"A")
+    await ClockCycles(dut.clk, 2500)
+    await uart_source.write(b"N")
+    await ClockCycles(dut.clk, 2500)
+    await uart_source.write(b"V")
+    await ClockCycles(dut.clk, 4000)
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
-
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    data = uart_sink.read_nowait(5)
+    dut._log.info(f"UART Data: {data}")
+    assert data == b"kianv"

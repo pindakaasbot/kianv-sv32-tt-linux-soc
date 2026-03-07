@@ -58,7 +58,11 @@ module soc #(
 
   wire clk = clk_osc;
 
+`ifdef SIM
+  localparam integer RST_CYCLES = 100;
+`else
   localparam integer RST_CYCLES = 200_000;
+`endif
   localparam integer RSTW = $clog2(RST_CYCLES);
   reg  [RSTW-1:0] rst_cnt;
 
@@ -159,6 +163,9 @@ module soc #(
       .START_ADDR   (`SPI_NOR_MEM_ADDR_START),
       .END_ADDR     (`SPI_NOR_MEM_ADDR_END),
       .NOR_CS_IDX   (2),
+`ifdef SIM
+      .SCLK_DIV    (1),
+`endif
       .CPOL_INIT    (4'b0000),
       .DIV_MAP      (4'b1110)
   ) spi_shared_I (
