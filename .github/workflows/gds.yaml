@@ -17,9 +17,8 @@ jobs:
         uses: TinyTapeout/tt-gds-action@ttihp26a
         with:
           pdk: ihp-sg13g2
-          librelane-version: 3.0.0.dev44
-          tools-repo: urish/tt-support-tools
-          tools-ref: ihp-8x4
+          librelane-version: 3.0.0.dev52
+          tools-repo: pindakaasbot/tt-support-tools
 
   precheck:
     needs: gds
