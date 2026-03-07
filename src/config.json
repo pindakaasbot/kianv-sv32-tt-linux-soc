@@ -36,16 +36,34 @@
 
   "//": "Configuration docs: https://librelane.readthedocs.io/en/latest/reference/configuration.html",
 
-  "//": "SRAM macro integration: use RM_IHPSG13_1P_256x64_c2_bm_bist for both icache + dcache",
+  "//": "SRAM macro integration: regfile (2P_64x32) + icache/dcache (1P_256x64)",
   "MACROS": {
+    "RM_IHPSG13_2P_64x32_c2": {
+      "instances": {
+        "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1": {
+          "location": [40, 40],
+          "orientation": "N"
+        }
+      },
+      "gds": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.gds"],
+      "lef": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.lef"],
+      "lib": {
+        "nom_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib"],
+        "min_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_fast_1p32V_m55C.lib"],
+        "max_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_slow_1p08V_125C.lib"],
+        "*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib"]
+      },
+      "nl": ["dir::./RM_IHPSG13_2P_64x32_c2.v"],
+      "spice": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.cdl"]
+    },
     "RM_IHPSG13_1P_256x64_c2_bm_bist": {
       "instances": {
         "soc_I.cache_I.gen_cached.icache_I.cache_I.u_mem.gen_ihp_sg13.u_sram64": {
-          "location": [40, 40],
+          "location": [40, 160],
           "orientation": "N"
         },
         "soc_I.cache_I.gen_cached.dcache_I.cache_D.u_mem.gen_ihp_sg13.u_sram64": {
-          "location": [40, 210],
+          "location": [40, 330],
           "orientation": "N"
         }
       },
@@ -63,14 +81,65 @@
   },
 
   "PDN_MACRO_CONNECTIONS": [
+    "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1 VPWR VGND VDD! VSS!",
+    "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1 VPWR VGND VDDARRAY! VSS!",
     "soc_I.cache_I.gen_cached.icache_I.cache_I.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
     "soc_I.cache_I.gen_cached.icache_I.cache_I.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDDARRAY! VSS!",
     "soc_I.cache_I.gen_cached.dcache_I.cache_D.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
     "soc_I.cache_I.gen_cached.dcache_I.cache_D.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDDARRAY! VSS!"
   ],
-  
+
   "//": "Custom PDN config: SRAM power pins on Metal4, connect Metal4 -> TopMetal1",
   "PDN_CFG": "dir::pdn_cfg.tcl",
+
+  "//": "Routing obstructions over SRAM footprints",
+  "//": "Regfile 2P_64x32: 702.83 x 74.87 µm at [40,40]",
+  "//": "Cache 1P_256x64: 784.48 x 118.78 µm at [40,160] and [40,330]",
+  "ROUTING_OBSTRUCTIONS": [
+    "Metal3 40.00 39.40 742.83 40.00",
+    "Metal3 40.00 114.87 742.83 115.47",
+    "Metal3 39.40 40.00 40.00 114.87",
+    "Metal3 742.83 40.00 743.43 114.87",
+    "Metal2 40.00 114.87 742.83 115.47",
+    "Metal2 39.40 40.00 40.00 114.87",
+    "Metal2 742.83 40.00 743.43 114.87",
+    "Metal4 40.00 40.00 742.83 114.87",
+    "Metal5 40.00 40.00 742.83 114.87",
+    "TopMetal1 40.00 40.00 742.83 114.87",
+
+    "Metal3 40.00 159.40 824.48 160.00",
+    "Metal3 40.00 278.78 824.48 279.38",
+    "Metal3 39.40 160.00 40.00 278.78",
+    "Metal3 824.48 160.00 825.08 278.78",
+    "Metal2 40.00 278.78 824.48 279.38",
+    "Metal2 39.40 160.00 40.00 278.78",
+    "Metal2 824.48 160.00 825.08 278.78",
+    "Metal4 40.00 160.00 824.48 278.78",
+    "Metal5 40.00 160.00 824.48 278.78",
+    "TopMetal1 40.00 160.00 824.48 278.78",
+
+    "Metal3 40.00 329.40 824.48 330.00",
+    "Metal3 40.00 448.78 824.48 449.38",
+    "Metal3 39.40 330.00 40.00 448.78",
+    "Metal3 824.48 330.00 825.08 448.78",
+    "Metal2 40.00 448.78 824.48 449.38",
+    "Metal2 39.40 330.00 40.00 448.78",
+    "Metal2 824.48 330.00 825.08 448.78",
+    "Metal4 40.00 330.00 824.48 448.78",
+    "Metal5 40.00 330.00 824.48 448.78",
+    "TopMetal1 40.00 330.00 824.48 448.78"
+  ],
+
+  "//": "SRAM macro DRC/LVS: skip for fast iteration, read full GDS for MAGIC",
+  "MAGIC_MACRO_STD_CELL_SOURCE": "PDK",
+  "RUN_MAGIC_DRC": 0,
+  "RUN_LVS": 0,
+  "ERROR_ON_MAGIC_DRC": false,
+  "ERROR_ON_LVS_ERROR": false,
+  "MAGIC_EXT_ABSTRACT_CELLS": [
+    "RM_IHPSG13_2P_.*",
+    "RM_IHPSG13_1P_.*"
+  ],
 
   "//": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
   "//": "!!! DO NOT CHANGE ANYTHING BELOW THIS POINT !!!",
