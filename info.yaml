@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        "KianV SV32 TT Linux SoC"         # Project title
-  author:       "Hirosh Dabui, Uri Shaked"        # Your name
-  discord:      ""                                 # optional
-  description:  "RISC-V Linux SoC on TT"          # One line description
+  title:        "KianV SV32 TT Linux SoC"
+  author:       "Hirosh Dabui, Uri Shaked"
+  discord:      ""
+  description:  "RISC-V Linux SoC on TT"
   language:     "Verilog"
   clock_hz:     0
 
@@ -58,37 +58,37 @@ project:
     - "sram_sp_256x56.v"
     - "tt_um_kianv_sv32_soc.v"
     - "tx_uart.v"
+
 # Pinout for docs/website. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: "IGPIO2"
-  ui[1]: "IGPIO0"
+  ui[0]: ""
+  ui[1]: "GPIO0 IN"
   ui[2]: "SPI MISO"
-  ui[3]: "IGPIO3"
-  ui[4]: "IGPIO4"
-  ui[5]: "IGPIO5"
-  ui[6]: "IGPIO1"
+  ui[3]: ""
+  ui[4]: ""
+  ui[5]: ""
+  ui[6]: ""
   ui[7]: "UART RX"
 
   # Outputs
   uo[0]: "UART TX"
-  uo[1]: "OGPIO0"
+  uo[1]: "GPIO0 OUT"
   uo[2]: "SPI CS1"
   uo[3]: "SPI MOSI"
   uo[4]: "SPI CS0"
-  uo[5]: "SPI SCK"
-  uo[6]: "SPI_CS2"
-  uo[7]: "SPI_CS3"
+  uo[5]: "SPI SCLK"
+  uo[6]: "SPI CS2"
+  uo[7]: "SPI CS3"
 
   # Bidirectional pins
-  uio[0]: "KVSMEM_SS"
-  uio[1]: "KVSMEM_MOSI"
-  uio[2]: "KVSMEM_MISO"
-  uio[3]: "KVSMEM_SCLK"
-  uio[4]: "KVSMEM_SIO2"
-  uio[5]: "KVSMEM_SIO3"
-  uio[6]: "KVSMEM_SPICS0"
-  uio[7]: "KVSMEM_SPICS1"
-
+  uio[0]: "KVSMEM SS_N"
+  uio[1]: "KVSMEM SIO0"
+  uio[2]: "KVSMEM SIO1"
+  uio[3]: "KVSMEM SCLK"
+  uio[4]: "KVSMEM SIO2"
+  uio[5]: "KVSMEM SIO3"
+  uio[6]: "KVSMEM CSN0"
+  uio[7]: "KVSMEM CSN1"
 # Do not change!
 yaml_version: 6

@@ -31,16 +31,16 @@ module tt_um_kianv_sv32_soc (
     input  wire       rst_n
 );
 
-  wire       igpio2 = ui_in[0];
-  wire       igpio0 = ui_in[1];
+  wire       reserved0 = ui_in[0];
+  wire       gpio0_in = ui_in[1];
   wire       spi_miso = ui_in[2];
-  wire       igpio3 = ui_in[3];
-  wire       igpio4 = ui_in[4];
-  wire       igpio5 = ui_in[5];
-  wire       igpio1 = ui_in[6];
+  wire       reserved3 = ui_in[3];
+  wire       reserved4 = ui_in[4];
+  wire       reserved5 = ui_in[5];
+  wire       reserved6 = ui_in[6];
   wire       uart_rx = ui_in[7];
 
-  wire       gpio_in = igpio0;
+  wire       gpio_in = gpio0_in;
 
   wire       uart_tx;
   wire       gpio_out;
@@ -53,8 +53,14 @@ module tt_um_kianv_sv32_soc (
   wire       kvsmem_sclk;
   wire       kvsmem_ss_n;
   wire [1:0] kvsmem_csn;
-  wire kvsmem_sio0_o, kvsmem_sio1_o, kvsmem_sio2_o, kvsmem_sio3_o;
-  wire kvsmem_sio0_i, kvsmem_sio1_i, kvsmem_sio2_i, kvsmem_sio3_i;
+  wire       kvsmem_sio0_o;
+  wire       kvsmem_sio1_o;
+  wire       kvsmem_sio2_o;
+  wire       kvsmem_sio3_o;
+  wire       kvsmem_sio0_i;
+  wire       kvsmem_sio1_i;
+  wire       kvsmem_sio2_i;
+  wire       kvsmem_sio3_i;
   wire [3:0] kvsmem_sio_oe;
 
   assign kvsmem_sio0_i = uio_in[1];
@@ -82,14 +88,12 @@ module tt_um_kianv_sv32_soc (
 
   assign uo_out[0] = uart_tx;
   assign uo_out[1] = gpio_out;
-
-  assign uo_out[4] = spi_cen[0];
   assign uo_out[2] = spi_cen[1];
+  assign uo_out[3] = spi_mosi0;
+  assign uo_out[4] = spi_cen[0];
+  assign uo_out[5] = spi_sclk0;
   assign uo_out[6] = spi_cen[2];
   assign uo_out[7] = spi_cen[3];
-
-  assign uo_out[5] = spi_sclk0;
-  assign uo_out[3] = spi_mosi0;
 
   wire resetn_core = rst_n;
 
@@ -128,7 +132,7 @@ module tt_um_kianv_sv32_soc (
       .gpio_oe (gpio_oe)
   );
 
-  wire _unused = &{1'b0, igpio1, igpio2, igpio3, igpio4, igpio5};
+  wire _unused = &{1'b0, reserved0, reserved3, reserved4, reserved5, reserved6, ena, gpio_oe};
 
 endmodule
 
