@@ -1,21 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /*
- * KianV RISC-V Linux/XV6 SoC
- * RISC-V SoC/ASIC Design
- *
- * Copyright (c) 2026 Hirosh Dabui <hirosh@dabui.de>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * KianV RISC-V Linux/XV6 SoC — Register File
+ * Uses rf_top (SRAM-backed on ASIC, FF-based in sim)
  */
 
 `default_nettype none
@@ -30,16 +16,22 @@ module register_file (
     output wire [31:0] rd1,
     output wire [31:0] rd2
 );
-  reg [31:0] bank0[0:31];
 
-  always @(posedge clk) begin
+  wire [31:0] ra_data;
+  wire [31:0] rb_data;
 
-    if (we && A3 != 0) begin
-      bank0[A3] <= wd;
-    end
-  end
+  rf_top tnt_regfile (
+      .w_data (wd),
+      .w_addr (A3),
+      .w_ena  (we),
+      .ra_addr(A1),
+      .rb_addr(A2),
+      .ra_data(ra_data),
+      .rb_data(rb_data),
+      .clk    (clk)
+  );
 
-  assign rd1 = A1 != 0 ? bank0[A1] : 32'b0;
-  assign rd2 = A2 != 0 ? bank0[A2] : 32'b0;
+  assign rd1 = A1 != 0 ? ra_data : 32'b0;
+  assign rd2 = A2 != 0 ? rb_data : 32'b0;
 
 endmodule
