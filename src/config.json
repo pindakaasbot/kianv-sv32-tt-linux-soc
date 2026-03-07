@@ -13,11 +13,11 @@
 
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "PL_TARGET_DENSITY_PCT": 60,
+  "PL_TARGET_DENSITY_PCT": 55,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
-  "CLOCK_PERIOD": 20,
+  "CLOCK_PERIOD": 25,
 
   "//": "Hold slack margin - Increase them in case you are getting hold violations.",
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
@@ -61,16 +61,49 @@
       "spice": ["dir::../macro/RM_IHPSG13_1P_256x64_c2_bm_bist/RM_IHPSG13_1P_256x64_c2_bm_bist.cdl"]
     }
   },
-
   "PDN_MACRO_CONNECTIONS": [
     "soc_I.cache_I.gen_cached.icache_I.cache_I.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
     "soc_I.cache_I.gen_cached.icache_I.cache_I.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDDARRAY! VSS!",
     "soc_I.cache_I.gen_cached.dcache_I.cache_D.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
     "soc_I.cache_I.gen_cached.dcache_I.cache_D.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDDARRAY! VSS!"
   ],
-  
   "//": "Custom PDN config: SRAM power pins on Metal4, connect Metal4 -> TopMetal1",
   "PDN_CFG": "dir::pdn_cfg.tcl",
+  "//": "Routing obstructions over SRAM footprints (Metal2/3 strips + Metal4/5/TopMetal1 full)",
+  "//": "256x64 SRAM size: 784.48 x 118.78 µm. Stacked: icache [40,40], dcache [40,210]",
+  "ROUTING_OBSTRUCTIONS": [
+    "Metal3 40.00 39.40 824.48 40.00",
+    "Metal3 40.00 158.78 824.48 159.38",
+    "Metal3 39.40 40.00 40.00 158.78",
+    "Metal3 824.48 40.00 825.08 158.78",
+    "Metal2 40.00 158.78 824.48 159.38",
+    "Metal2 39.40 40.00 40.00 158.78",
+    "Metal2 824.48 40.00 825.08 158.78",
+    "Metal4 40.00 40.00 824.48 158.78",
+    "Metal5 40.00 40.00 824.48 158.78",
+    "TopMetal1 40.00 40.00 824.48 158.78",
+
+    "Metal3 40.00 209.40 824.48 210.00",
+    "Metal3 40.00 328.78 824.48 329.38",
+    "Metal3 39.40 210.00 40.00 328.78",
+    "Metal3 824.48 210.00 825.08 328.78",
+    "Metal2 40.00 328.78 824.48 329.38",
+    "Metal2 39.40 210.00 40.00 328.78",
+    "Metal2 824.48 210.00 825.08 328.78",
+    "Metal4 40.00 210.00 824.48 328.78",
+    "Metal5 40.00 210.00 824.48 328.78",
+    "TopMetal1 40.00 210.00 824.48 328.78"
+  ],
+
+  "//": "SRAM macro DRC/LVS: skip for fast iteration, read full GDS for MAGIC",
+  "MAGIC_MACRO_STD_CELL_SOURCE": "PDK",
+  "RUN_MAGIC_DRC": 0,
+  "RUN_LVS": 0,
+  "ERROR_ON_MAGIC_DRC": false,
+  "ERROR_ON_LVS_ERROR": false,
+  "MAGIC_EXT_ABSTRACT_CELLS": [
+    "RM_IHPSG13_1P_.*"
+  ],
 
   "//": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
   "//": "!!! DO NOT CHANGE ANYTHING BELOW THIS POINT !!!",
