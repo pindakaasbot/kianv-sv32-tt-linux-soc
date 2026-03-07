@@ -23,9 +23,9 @@
 
 volatile char *uart_tx = (char *)UART_TX, *uart_rx = (char *)UART_RX,
               *uart_lsr = (char *)UART_LSR;
-volatile char *gpio_uo_en = (char *)GPIO_UO_EN,
-              *gpio_uo_out = (char *)GPIO_UO_OUT,
-              *gpio_ui_in = (char *)GPIO_UI_IN;
+volatile uint32_t *gpio_uo_en = (volatile uint32_t *)GPIO_UO_EN,
+                  *gpio_uo_out = (volatile uint32_t *)GPIO_UO_OUT,
+                  *gpio_ui_in = (volatile uint32_t *)GPIO_UI_IN;
 volatile uint32_t *ram_high = (uint32_t *)RAM_HIGH;
 volatile atomic_uint interrupt_occurred = ATOMIC_VAR_INIT(0);
 
@@ -143,16 +143,15 @@ int main() {
   }
 
   // Test GPIO (only if test_sel is set)
+  // Single-bit GPIO module uses wdata[9] for OE and OUT
   if (*gpio_ui_in & 1) {
-     *gpio_uo_en = 0xff;
-     *gpio_uo_out = 0x80; // Start of test marker
-     *gpio_uo_out = 0x00;
-     *gpio_uo_out = 0x85;
-     *gpio_uo_out = 0x12;
-     *gpio_uo_out = 0x94;
-     *gpio_uo_out = 0x17;
-     *gpio_uo_out = 0x80; // End of test marker
-     *gpio_uo_en = 0;
+     *gpio_uo_en = (1 << 9);   // enable output
+     *gpio_uo_out = (1 << 9);  // set output high (start marker)
+     *gpio_uo_out = 0;         // set output low
+     *gpio_uo_out = (1 << 9);  // set output high
+     *gpio_uo_out = 0;         // set output low
+     *gpio_uo_out = (1 << 9);  // set output high (end marker)
+     *gpio_uo_en = 0;          // disable output
   }
 
   // Test SPI

@@ -80,3 +80,44 @@ async def test_uart(dut):
     data = uart_sink.read_nowait(5)
     dut._log.info(f"UART Data: {data}")
     assert data == b"kianv"
+
+
+@cocotb.test()
+async def test_gpio(dut):
+    """Test single-bit GPIO output on uo_out[1]."""
+    dut._log.info("start")
+    dut.test_sel.value = 1  # firmware checks gpio_ui_in bit 0 (ui_in[1])
+    clock = Clock(dut.clk, 100, unit="ns")
+    cocotb.start_soon(clock.start())
+    cocotb.start_soon(
+        spi_slave(
+            dut,
+            dut.spi_sclk0,
+            dut.spi_cen0,
+            dut.spi_sio0_si_mosi0,
+            dut.spi_sio1_so_miso0,
+        )
+    )
+
+    dut.rst_n.value = 0
+    await ClockCycles(dut.clk, 10)
+    dut.rst_n.value = 1
+
+    # gpio_out is uo_out[1]; firmware toggles it: high, low, high, low, high
+    gpio_pin = dut.gpio_out
+
+    # Wait for first rising edge (start marker)
+    await RisingEdge(gpio_pin)
+    dut._log.info("GPIO: first rising edge (start marker)")
+
+    # Expect: low, high, low, high (end marker)
+    for i, expected in enumerate([0, 1, 0, 1]):
+        await gpio_pin.value_change
+        try:
+            val = int(gpio_pin.value)
+        except ValueError:
+            val = -1
+        dut._log.info(f"GPIO transition {i}: got {val} (expected {expected})")
+        assert val == expected, f"GPIO step {i}: expected {expected}, got {val}"
+
+    dut._log.info("GPIO test passed")
