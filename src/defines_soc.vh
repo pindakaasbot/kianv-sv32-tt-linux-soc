@@ -29,6 +29,9 @@
 `define NUM_ENTRIES_ITLB 8
 `define NUM_ENTRIES_DTLB 8
 
+`define ENABLE_M_EXT 1
+
+
 // ============================================================================
 // Feature toggles / global controls
 // ============================================================================
