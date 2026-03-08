@@ -20,6 +20,8 @@
 #define GPIO_UI_IN (GPIO_BASE + 0x0008)
 #define MTIME (*((volatile uint64_t *)0x0200bff8))
 #define RAM_HIGH 0x80800000
+#define KIANV_QQSPI_CTRL 0x10600000u
+#define REG32(a) (*(volatile uint32_t *)(uintptr_t)(a))
 
 volatile char *uart_tx = (char *)UART_TX, *uart_rx = (char *)UART_RX,
               *uart_lsr = (char *)UART_LSR;
@@ -28,6 +30,11 @@ volatile uint32_t *gpio_uo_en = (volatile uint32_t *)GPIO_UO_EN,
                   *gpio_ui_in = (volatile uint32_t *)GPIO_UI_IN;
 volatile uint32_t *ram_high = (uint32_t *)RAM_HIGH;
 volatile atomic_uint interrupt_occurred = ATOMIC_VAR_INIT(0);
+
+static inline void data_fence(void)
+{
+	__asm__ volatile("fence rw, rw" ::: "memory");
+}
 
 void uart_putc(char c) {
   while (!(*uart_lsr & (LSR_THRE | LSR_TEMT)))
@@ -127,7 +134,21 @@ uint8_t test_ram_high() {
 #define CS_ENABLE() spi_set_cs(1)
 #define CS_DISABLE() spi_set_cs(0)
 
+static inline uint32_t qqspi_ctrl_r(void)
+{
+	return REG32(KIANV_QQSPI_CTRL);
+}
+
+static inline void qqspi_ctrl_w_raw(uint32_t v)
+{
+	REG32(KIANV_QQSPI_CTRL) = v;
+	data_fence();
+	(void)qqspi_ctrl_r();
+	data_fence();
+}
+
 int main() {
+  qqspi_ctrl_w_raw(0);
   setup_timer_interrupt();
   uint64_t interval = 2, *mtime = (volatile uint64_t *)0x0200bff8,
            *mtimecmp = (volatile uint64_t *)0x02004000;
