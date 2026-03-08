@@ -21,6 +21,8 @@
 `default_nettype none
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off WIDTHEXPAND */
+/* verilator lint_off UNUSEDSIGNAL */
+/* verilator lint_off UNUSEDPARAM */
 module dcache #(
 
     parameter integer NUM_LINES  = 256,
@@ -561,4 +563,6 @@ module dcache #(
 endmodule
 /* verilator lint_on WIDTHTRUNC */
 /* verilator lint_on WIDTHEXPAND */
+/* verilator lint_on UNUSEDSIGNAL */
+/* verilator lint_on UNUSEDPARAM */
 `default_nettype wire

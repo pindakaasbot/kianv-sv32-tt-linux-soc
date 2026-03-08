@@ -22,6 +22,8 @@
 
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off WIDTHEXPAND */
+/* verilator lint_off UNUSEDSIGNAL */
+/* verilator lint_off UNUSEDPARAM */
 module icache #(
     parameter integer NUM_SETS   = 256,
     parameter integer LINE_BYTES = 4,
@@ -364,4 +366,6 @@ module icache #(
 endmodule
 /* verilator lint_on WIDTHTRUNC */
 /* verilator lint_on WIDTHEXPAND */
+/* verilator lint_on UNUSEDSIGNAL */
+/* verilator lint_on UNUSEDPARAM */
 `default_nettype wire
