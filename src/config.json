@@ -36,26 +36,8 @@
 
   "//": "Configuration docs: https://librelane.readthedocs.io/en/latest/reference/configuration.html",
 
-  "//": "SRAM macro integration: regfile (2P_64x32) + icache/dcache (1P_64x64)",
+  "//": "SRAM macro integration: icache/dcache (1P_64x64), regfile uses FFs",
   "MACROS": {
-    "RM_IHPSG13_2P_64x32_c2": {
-      "instances": {
-        "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1": {
-          "location": [40, 40],
-          "orientation": "N"
-        }
-      },
-      "gds": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.gds"],
-      "lef": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.lef"],
-      "lib": {
-        "nom_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib"],
-        "min_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_fast_1p32V_m55C.lib"],
-        "max_*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_slow_1p08V_125C.lib"],
-        "*": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2_typ_1p20V_25C.lib"]
-      },
-      "nl": ["dir::./RM_IHPSG13_2P_64x32_c2.v"],
-      "spice": ["dir::../macro/RM_IHPSG13_2P_64x32_c2/RM_IHPSG13_2P_64x32_c2.cdl"]
-    },
     "RM_IHPSG13_1P_64x64_c2_bm_bist": {
       "instances": {
         "soc_I.cache_I.gen_cached.icache_I.cache_I.gen_sram64.u_mem.gen_ihp_sg13.u_sram64": {
@@ -81,8 +63,6 @@
   },
 
   "PDN_MACRO_CONNECTIONS": [
-    "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1 VPWR VGND VDD! VSS!",
-    "soc_I.kianv_I.datapath_unit_I.register_file_I.u_sram_rd1 VPWR VGND VDDARRAY! VSS!",
     "soc_I.cache_I.gen_cached.icache_I.cache_I.gen_sram64.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
     "soc_I.cache_I.gen_cached.icache_I.cache_I.gen_sram64.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDDARRAY! VSS!",
     "soc_I.cache_I.gen_cached.dcache_I.cache_D.gen_sram64.u_mem.gen_ihp_sg13.u_sram64 VPWR VGND VDD! VSS!",
@@ -92,21 +72,9 @@
   "//": "Custom PDN config: SRAM power pins on Metal4, connect Metal4 -> TopMetal1",
   "PDN_CFG": "dir::pdn_cfg.tcl",
 
-  "//": "Routing obstructions over SRAM footprints",
-  "//": "Regfile 2P_64x32: 702.83 x 74.87 µm at [40,40]",
+  "//": "Routing obstructions over SRAM cache footprints",
   "//": "Cache 1P_64x64: 784.48 x 64.36 µm at [860,40] and [40,600]",
   "ROUTING_OBSTRUCTIONS": [
-    "Metal3 40.00 39.40 742.83 40.00",
-    "Metal3 40.00 114.87 742.83 115.47",
-    "Metal3 39.40 40.00 40.00 114.87",
-    "Metal3 742.83 40.00 743.43 114.87",
-    "Metal2 40.00 114.87 742.83 115.47",
-    "Metal2 39.40 40.00 40.00 114.87",
-    "Metal2 742.83 40.00 743.43 114.87",
-    "Metal4 40.00 40.00 742.83 114.87",
-    "Metal5 40.00 40.00 742.83 114.87",
-    "TopMetal1 40.00 40.00 742.83 114.87",
-
     "Metal3 860.00 39.40 1644.48 40.00",
     "Metal3 860.00 104.36 1644.48 104.96",
     "Metal3 859.40 40.00 860.00 104.36",
@@ -132,7 +100,6 @@
 
   "//": "SRAM macro LVS: abstract (black-box) SRAM cells during extraction",
   "MAGIC_EXT_ABSTRACT_CELLS": [
-    "RM_IHPSG13_2P_.*",
     "RM_IHPSG13_1P_.*"
   ],
 
