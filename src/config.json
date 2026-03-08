@@ -130,8 +130,7 @@
     "TopMetal1 40.00 600.00 824.48 664.36"
   ],
 
-  "//": "SRAM macro DRC/LVS settings",
-  "MAGIC_MACRO_STD_CELL_SOURCE": "PDK",
+  "//": "SRAM macro LVS: abstract (black-box) SRAM cells during extraction",
   "MAGIC_EXT_ABSTRACT_CELLS": [
     "RM_IHPSG13_2P_.*",
     "RM_IHPSG13_1P_.*"
