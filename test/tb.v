@@ -4,6 +4,25 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
+// -----------------------------------------------------------------------------
+// 2-to-4 decoder with active-low enable and active-low outputs
+// Similar in behavior to one half of a 74LS139
+// -----------------------------------------------------------------------------
+module decoder_2to4_n (
+    input  wire en_n,
+    input  wire a1,
+    input  wire a0,
+    output wire y0_n,
+    output wire y1_n,
+    output wire y2_n,
+    output wire y3_n
+);
+  assign y0_n = en_n |  a1 |  a0;
+  assign y1_n = en_n |  a1 | ~a0;
+  assign y2_n = en_n | ~a1 |  a0;
+  assign y3_n = en_n | ~a1 | ~a0;
+endmodule
+
 module tb ();
 
   initial begin
@@ -26,7 +45,6 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
-  // SPI slave MISO (driven by cocotb SPI slave coroutine)
   reg spi_sio1_so_miso0;
   reg uart_rx;
   reg test_sel;
@@ -40,13 +58,12 @@ module tb ();
   wire spi_cen0            = uo_out[4];
   wire spi_sclk0           = uo_out[5];
   wire spi_sio0_si_mosi0   = uo_out[3];
-  wire spi_cen2            = uo_out[6];  // NOR flash chip select
+  wire spi_cen2            = uo_out[6];
   wire uo_out7             = uo_out[7];
 
-  // --- SPI NOR Flash (boots CPU from 0x20000000) ---
-  // Connected to the shared SPI bus (uo_out pins), NOR_CS_IDX=2 → uo_out[6]
+  // --- SPI NOR Flash ---
   wire nor_miso;
-  pullup(nor_miso);  // default high when flash not driving
+  pullup(nor_miso);
 
   spiflash #(
       .FILENAME("firmware/firmware.hex")
@@ -59,7 +76,6 @@ module tb ();
       .io3()
   );
 
-  // MISO mux: NOR flash active → flash MISO, else → SPI slave MISO
   wire miso_to_soc = (!spi_cen2) ? nor_miso : spi_sio1_so_miso0;
 
   // ui_in mapping: [1]=gpio0_in(test_sel), [2]=spi_miso, [7]=uart_rx
@@ -83,31 +99,62 @@ module tb ();
   // --- kianv_smem (QSPI) wiring for PSRAM ---
   wire kvsmem_sclk = uio_out[3];
   wire kvsmem_ss_n = uio_out[0];
-  wire kvsmem_csn0 = uio_out[6];
-  wire kvsmem_csn1 = uio_out[7];
+  wire kvsmem_a0   = uio_out[6];
+  wire kvsmem_a1   = uio_out[7];
 
-  // Bidirectional SIO lines
   wire sio_io0 = uio_oe[1] ? uio_out[1] : 1'bz;
   wire sio_io1 = uio_oe[2] ? uio_out[2] : 1'bz;
   wire sio_io2 = uio_oe[4] ? uio_out[4] : 1'bz;
   wire sio_io3 = uio_oe[5] ? uio_out[5] : 1'bz;
 
-  assign uio_in = {kvsmem_csn1, kvsmem_csn0, sio_io3, sio_io2, kvsmem_sclk, sio_io1, sio_io0, kvsmem_ss_n};
+  assign uio_in = {
+      kvsmem_a1,
+      kvsmem_a0,
+      sio_io3,
+      sio_io2,
+      kvsmem_sclk,
+      sio_io1,
+      sio_io0,
+      kvsmem_ss_n
+  };
 
-  // PSRAM chip 0 — CSN[0] region (0x80000000-0x807FFFFF)
-  wire psram0_cs = kvsmem_ss_n | kvsmem_csn0;
+  wire psram_enable_n = kvsmem_ss_n;
+
+  wire psram0_cs_n;
+  wire psram1_cs_n;
+  wire psram2_cs_n;
+  wire psram3_cs_n;
+
+  decoder_2to4_n psram_cs_decode_I (
+      .en_n(psram_enable_n),
+      .a1  (kvsmem_a1),
+      .a0  (kvsmem_a0),
+      .y0_n(psram0_cs_n),
+      .y1_n(psram1_cs_n),
+      .y2_n(psram2_cs_n),
+      .y3_n(psram3_cs_n)
+  );
 
   psram psram0_I (
-      .ce_n(psram0_cs),
+      .ce_n(psram0_cs_n),
       .sck (kvsmem_sclk),
       .dio ({sio_io3, sio_io2, sio_io1, sio_io0})
   );
 
-  // PSRAM chip 1 — CSN[1] region (0x80800000-0x80FFFFFF)
-  wire psram1_cs = kvsmem_ss_n | kvsmem_csn1;
-
   psram psram1_I (
-      .ce_n(psram1_cs),
+      .ce_n(psram1_cs_n),
+      .sck (kvsmem_sclk),
+      .dio ({sio_io3, sio_io2, sio_io1, sio_io0})
+  );
+
+  psram psram2_I (
+      .ce_n(psram2_cs_n),
+      .sck (kvsmem_sclk),
+      .dio ({sio_io3, sio_io2, sio_io1, sio_io0})
+  );
+
+  psram psram3_I (
+      .ce_n(psram3_cs_n),
       .sck (kvsmem_sclk),
       .dio ({sio_io3, sio_io2, sio_io1, sio_io0})
   );
