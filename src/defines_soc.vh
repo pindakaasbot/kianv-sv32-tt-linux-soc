@@ -49,6 +49,10 @@
 `define BYPASS_CACHES 1'b0
 `endif
 
+`ifndef CACHE_NUM_SETS
+`define CACHE_NUM_SETS 64
+`endif
+
 // ============================================================================
 // System control values
 // ============================================================================
