@@ -72,32 +72,6 @@
   "//": "Custom PDN config: SRAM power pins on Metal4, connect Metal4 -> TopMetal1",
   "PDN_CFG": "dir::pdn_cfg.tcl",
 
-  "//": "Routing obstructions over SRAM cache footprints",
-  "//": "Cache 1P_64x64: 784.48 x 64.36 µm at [860,40] and [40,600]",
-  "ROUTING_OBSTRUCTIONS": [
-    "Metal3 860.00 39.40 1644.48 40.00",
-    "Metal3 860.00 104.36 1644.48 104.96",
-    "Metal3 859.40 40.00 860.00 104.36",
-    "Metal3 1644.48 40.00 1645.08 104.36",
-    "Metal2 860.00 104.36 1644.48 104.96",
-    "Metal2 859.40 40.00 860.00 104.36",
-    "Metal2 1644.48 40.00 1645.08 104.36",
-    "Metal4 860.00 40.00 1644.48 104.36",
-    "Metal5 860.00 40.00 1644.48 104.36",
-    "TopMetal1 860.00 40.00 1644.48 104.36",
-
-    "Metal3 40.00 599.40 824.48 600.00",
-    "Metal3 40.00 664.36 824.48 664.96",
-    "Metal3 39.40 600.00 40.00 664.36",
-    "Metal3 824.48 600.00 825.08 664.36",
-    "Metal2 40.00 664.36 824.48 664.96",
-    "Metal2 39.40 600.00 40.00 664.36",
-    "Metal2 824.48 600.00 825.08 664.36",
-    "Metal4 40.00 600.00 824.48 664.36",
-    "Metal5 40.00 600.00 824.48 664.36",
-    "TopMetal1 40.00 600.00 824.48 664.36"
-  ],
-
   "//": "SRAM macros have inherent DRC violations in Magic",
   "ERROR_ON_MAGIC_DRC": false,
   
