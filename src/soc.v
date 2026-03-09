@@ -575,14 +575,6 @@ module kvsmem_if #(
 
   wire        req_fire = hit && !pend && !resp_valid;
 
-  reg         half_q;
-  always @(posedge clk) begin
-    if (!resetn) begin
-      half_q <= 1'b1;
-    end else if (req_fire) begin
-      half_q <= half_clock_i;
-    end
-  end
 
   wire [31:0] mem_rdata;
   wire mem_ready;
@@ -638,7 +630,7 @@ module kvsmem_if #(
 
       .PSRAM_SPIFLASH(1'b1),
       .QUAD_MODE     (1'b1),
-      .HALF_CLOCK    (half_q),
+      .HALF_CLOCK    (half_clock_i),
 
       .sclk(sclk),
 
