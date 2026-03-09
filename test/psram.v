@@ -86,6 +86,7 @@ module psram (
   reg [3:0] do_;
   always @(negedge sck)
     if (state == ST_DR) begin
+      #1;
       do_  = data[7:4];
       data = data << 4;
     end
