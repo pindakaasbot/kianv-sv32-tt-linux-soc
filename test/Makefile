@@ -75,6 +75,10 @@ VERILOG_SOURCES += $(PDK_ROOT)/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog/sg13g2
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
+# SRAM behavioral models needed for gate-level sim
+VERILOG_SOURCES += $(SRC_DIR)/RM_IHPSG13_1P_core_behavioral_bm_bist.v
+VERILOG_SOURCES += $(SRC_DIR)/RM_IHPSG13_1P_64x64_c2_bm_bist.v
+
 endif
 
 # Allow sharing configuration between design and testbench via `include`:
