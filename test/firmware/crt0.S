@@ -1,41 +1,52 @@
 /* SPDX-FileCopyrightText: © 2023 Uri Shaked <uri@wokwi.com>
    SPDX-FileCopyrightText: © 2023 Hirosh Dabui <hirosh@dabui.de>
    SPDX-License-Identifier: MIT */
+
 .text
 .global _start, timer_interrupt_handler
 
-#define IO_BASE 0x10000000
-#define REG_DIV (IO_BASE + 0x0010)
-#define SPI_REG_DIV (IO_BASE + 0x500000 + 0x0010)
-.equ FREQ, 10000000
-.equ DIVISOR1, 1000
-.equ SPI_DATA_RATE, 100000
-.equ BAUDRATE, 115200
-.equ REG_DIV_VAL, ((FREQ / DIVISOR1) << 16) | (FREQ / BAUDRATE)
-.equ SPI_REG_DIV_VAL, (FREQ / SPI_DATA_RATE)
+.equ IO_BASE,        0x10000000
+.equ DIV_ADDR0,      0x1000000c   /* HI: SPI0 div, LO: UART div */
+.equ DIV_ADDR1,      0x10000010   /* HI: SPI1 div, LO: CLINT div */
+
+.equ FREQ,           10000000
+.equ BAUDRATE,       115200
+
+.equ UART_DIV,       (FREQ / BAUDRATE)   /* ~86 */
+.equ SPI0_DIV,       2
+.equ SPI1_DIV,       4
+.equ CLINT_DIV,      1
+
+.equ DIV_ADDR0_VAL,  ((SPI0_DIV << 16) | UART_DIV)
+.equ DIV_ADDR1_VAL,  ((SPI1_DIV << 16) | CLINT_DIV)
 
 .type _start, @function
+
 _start:
-    la t0, REG_DIV
-    li t1, REG_DIV_VAL
+    /* DIV_ADDR0: HI = SPI0, LO = UART */
+    li t0, DIV_ADDR0
+    li t1, DIV_ADDR0_VAL
     sw t1, 0(t0)
 
-    la t0, SPI_REG_DIV
-    li t1, SPI_REG_DIV_VAL
+    /* DIV_ADDR1: HI = SPI1, LO = CLINT */
+    li t0, DIV_ADDR1
+    li t1, DIV_ADDR1_VAL
     sw t1, 0(t0)
 
     la sp, __stacktop
 
     la a0, _sbss
     la a1, _ebss
-1:  sw zero, 0(a0)
+1:
+    sw zero, 0(a0)
     addi a0, a0, 4
     blt a0, a1, 1b
 
     la a0, _sidata
     la a1, _sdata
     la a2, _edata
-2:  lw a3, 0(a0)
+2:
+    lw a3, 0(a0)
     sw a3, 0(a1)
     addi a0, a0, 4
     addi a1, a1, 4
@@ -45,6 +56,7 @@ _start:
     csrw mtvec, a0
 
     call main
-3:  j 3b
-.balign 4
+3:
+    j 3b
 
+.balign 4
