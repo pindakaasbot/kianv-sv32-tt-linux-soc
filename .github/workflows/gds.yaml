@@ -94,7 +94,7 @@ jobs:
           set -euxo pipefail
           cd test
           make clean
-          make
+          make GATES=yes
           ! grep failure results.xml
 
       - name: Upload simulation artifacts
